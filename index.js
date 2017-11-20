@@ -11,7 +11,7 @@ var client  = mqtt.connect({
 
 client.on('connect', function () {
   client.subscribe('server');
-  //client.publish('ESP8266', 'Hello mqtt')
+  client.publish('chrome_test', 'Hello mqtt');
 });
 
 client.on('message', function (topic, message) {
@@ -42,6 +42,7 @@ app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
   response.render('pages/index');
+  console.log("Someone connected!!!");
   slack.webhook({
     channel: "#sensor",
     username: "Server",
