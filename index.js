@@ -51,7 +51,7 @@ client.on('message', function (topic, message) {
     username: "ESP8266",
     text: message.toString(),
   }, function(err, response) {
-    console.log(response);
+    //console.log(response);
   });
   client.end();
 });
