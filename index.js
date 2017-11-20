@@ -1,6 +1,31 @@
 var express = require('express');
 var Slack = require('./slack.seed');
 var app = express();
+var mqtt = require('mqtt');
+var client  = mqtt.connect({
+  host: 'm14.cloudmqtt.com',
+  port: 14439,
+  username: 'okzxtdhr',
+  password: 'vFlJrrfn3lf0'
+});
+
+client.on('connect', function () {
+  client.subscribe('server');
+  //client.publish('ESP8266', 'Hello mqtt')
+});
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString());
+  slack.webhook({
+    channel: "#sensor",
+    username: "ESP8266",
+    text: message.toString(),
+  }, function(err, response) {
+    console.log(response);
+  });
+  client.end();
+});
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -19,8 +44,8 @@ app.get('/', function(request, response) {
   response.render('pages/index');
   slack.webhook({
     channel: "#sensor",
-    username: "ESP8266",
-    text: "This is posted to #sensor and comes from a bot named ESP8266."
+    username: "Server",
+    text: "Server is ready !!!"
   }, function(err, response) {
     console.log(response);
   });
