@@ -17,13 +17,13 @@ app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
   response.render('pages/index');
-  /*slack.webhook({
+  slack.webhook({
     channel: "#sensor",
     username: "ESP8266",
     text: "This is posted to #sensor and comes from a bot named ESP8266."
   }, function(err, response) {
     console.log(response);
-  });*/
+  });
 });
 
 app.listen(app.get('port'), function() {
