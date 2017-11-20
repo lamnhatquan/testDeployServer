@@ -1,5 +1,5 @@
 var express = require('express');
-var Slack = require('slack.seed');
+var Slack = require('./slack.seed');
 var app = express();
 
 app.set('port', (process.env.PORT || 5000));
