@@ -10,7 +10,7 @@ var client  = mqtt.connect({
 });
 
 client.on('connect', function () {
-  client.subscribe('server');
+  client.subscribe('NodeJS_Server');
   client.publish('chrome_test', 'Hello mqtt');
 });
 
