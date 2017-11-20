@@ -53,5 +53,5 @@ client.on('message', function (topic, message) {
   }, function(err, response) {
     //console.log(response);
   });
-  client.end();
+  //client.end();
 });
