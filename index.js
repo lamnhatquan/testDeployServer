@@ -1,15 +1,15 @@
 var express = require('express');
-//var Slack = require('slack.seed');
+var Slack = require('slack.seed');
 var app = express();
 
 app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
-//webhookUri = "https://hooks.slack.com/services/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";
+webhookUri = "https://hooks.slack.com/services/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";
 
-//slack = new Slack();
-//slack.setWebhook(webhookUri);
+slack = new Slack();
+slack.setWebhook(webhookUri);
 
 // views is directory for all template files
 app.set('views', __dirname + '/views');
