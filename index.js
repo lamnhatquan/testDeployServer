@@ -5,6 +5,7 @@ var mqtt = require('mqtt');
 var client  = mqtt.connect({
   host: 'm14.cloudmqtt.com',
   port: 14439,
+  keepalive: 10,
   username: 'okzxtdhr',
   password: 'vFlJrrfn3lf0'
 });
