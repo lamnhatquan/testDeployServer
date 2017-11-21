@@ -3,10 +3,10 @@ var Slack = require('./slack.seed');
 var app = express();
 var mqtt = require('mqtt');
 var client  = mqtt.connect({
-  host: 'm14.cloudmqtt.com',
-  port: 14439,
-  username: 'okzxtdhr',
-  password: 'vFlJrrfn3lf0'
+  host: 'iot.eclipse.org',
+  port: 1883,
+  keepalive: 10,
+  connectTimeout: 30*1000
 });
 
 client.on('connect', function () {
@@ -55,3 +55,4 @@ client.on('message', function (topic, message) {
   });
   //client.end();
 });
+
