@@ -5,8 +5,6 @@ var mqtt = require('mqtt');
 var client  = mqtt.connect({
   host: 'm14.cloudmqtt.com',
   port: 14439,
-  keepalive: 10,
-  connectTimeout: 10,
   username: 'okzxtdhr',
   password: 'vFlJrrfn3lf0'
 });
@@ -14,6 +12,14 @@ var client  = mqtt.connect({
 client.on('connect', function () {
   client.subscribe('NodeJS_Server');
   client.publish('chrome_test', 'Hello mqtt');
+  console.log("Someone connected!!!");
+  slack.webhook({
+    channel: "#sensor",
+    username: "Server",
+    text: "Server is ready !!!"
+  }, function(err, response) {
+    console.log(response);
+  });
 });
 
 app.set('port', (process.env.PORT || 5000));
@@ -31,14 +37,6 @@ app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
   response.render('pages/index');
-  console.log("Someone connected!!!");
-  slack.webhook({
-    channel: "#sensor",
-    username: "Server",
-    text: "Server is ready !!!"
-  }, function(err, response) {
-    console.log(response);
-  });
 });
 
 app.listen(app.get('port'), function() {
