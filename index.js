@@ -7,12 +7,14 @@ var socketIO = require('socket.io');
 var mongo = require('mongodb');
 var url = "mongodb://abc:abc@ds115436.mlab.com:15436/finger_id";
 var newUser;
+var n_data = 0;
 
 mongo.connect(url, function(err, db) {
   if (err) throw err;
-  db.collection("FingerID").findOne({}, function(err, result) {
+  db.collection("FingerID").count({}, function(err, result) {
     if (err) throw err;
-    console.log(result.name);
+    console.log(result);
+    n_data = parseInt(result);
     db.close();
   });
 });
@@ -56,7 +58,7 @@ io.on('connection', (socket) => {
   socket.on('register', function(message){
     newUser = message;
     console.log(newUser);
-    client.publish('/ESP8266/Register','GetID');
+    client.publish('/ESP8266/Register','GetID#'+(n_data+1).toString());
   });
 });
 
@@ -102,7 +104,7 @@ client.on('message', function (topic, message) {
           name: newUser.name,
           slack_user: newUser.slack_user,
           position: newUser.position,
-          fingerid: message.toString()
+          fingerid: (n_data+1).toString()
         };
         console.log(obj.toString());
         db.collection("FingerID").insertOne(obj, function(err, res){
