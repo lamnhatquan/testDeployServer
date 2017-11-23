@@ -41,9 +41,9 @@ var RequestESP8266 = function() {
 	//button.className = '';
 	notice_text.style.visibility = 'visible';
 	socket.emit('register', {
-		name : name,
-		slack_user: slack_user,
-		position: position
+		'name' : name,
+		'slack_user': slack_user,
+		'position': position
 	});
 	name.innerHTML = "tran thanh loc";
 	console.log("sent request with: "+name);

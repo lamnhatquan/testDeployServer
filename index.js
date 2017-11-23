@@ -4,6 +4,19 @@ var Slack = require('./slack.seed');
 var path = require('path');
 var mqtt = require('mqtt');
 var socketIO = require('socket.io');
+var mongo = require('mongodb');
+var url = "mongodb://abc:abc@ds115436.mlab.com:15436/finger_id";
+var newUser;
+
+mongo.connect(url, function(err, db) {
+  if (err) throw err;
+  db.collection("FingerID").findOne({}, function(err, result) {
+    if (err) throw err;
+    console.log(result.name);
+    db.close();
+  });
+});
+
 
 //app.set('port', (process.env.PORT || 5000));
 
@@ -41,8 +54,8 @@ io.on('connection', (socket) => {
   console.log('Client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
   socket.on('register', function(message){
-    console.log(message);
-    
+    newUser = message;
+    console.log(newUser);
     client.publish('/ESP8266/Register','GetID');
   });
 });
@@ -83,16 +96,40 @@ client.on('message', function (topic, message) {
   switch (topic){
     case '/Server/Register': 
       console.log("Register with ID = "+message.toString());
+      mongo.connect(url, function(err,db) {
+        if (err) throw err;
+        var obj = {
+          name: newUser.name,
+          slack_user: newUser.slack_user,
+          position: newUser.position,
+          fingerid: message.toString()
+        };
+        console.log(obj.toString());
+        db.collection("FingerID").insertOne(obj, function(err, res){
+          if (err) throw err;
+          console.log('1 object inserted !!!');
+          db.close();
+        });
+      });
       io.emit('complete', message.toString());
+
       break;
     case '/Server/toSlack':
       console.log("Send to Slack: "+message.toString());
-      slack.webhook({
-        channel: "#sensor",
-        username: "ESP8266",
-        text: message.toString(),
-      }, function(err, response) {
-        //console.log(response);
+      mongo.connect(url, function(err, db) {
+        if (err) throw err;
+        db.collection("FingerID").findOne({"fingerid": message.toString()}, function(err, result) {
+          if (err) throw err;
+          console.log(result.name);
+          slack.webhook({
+            channel: "#sensor",
+            username: "ESP8266",
+            text: new Date().toString() + " : "+ result.name+" is coming!!!",
+          }, function(err, response) {
+            //console.log(response);
+          });
+          db.close();
+        });
       });
       break;
   }
