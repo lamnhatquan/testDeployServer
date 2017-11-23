@@ -1,7 +1,10 @@
 var express = require('express');
 var Slack = require('./slack.seed');
 var app = express();
+var httpProxy = require('http-proxy');
 var mqtt = require('mqtt');
+var bodyParser = require('body-parser');
+
 var client  = mqtt.connect({
   host: 'iot.eclipse.org',
   port: 1883,
@@ -23,8 +26,31 @@ client.on('connect', function () {
 });
 
 app.set('port', (process.env.PORT || 5000));
+const proxy = httpProxy.createProxyServer();
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (!isProduction) {
+  console.log('Build on development!');
+  app.all('/build/*', function (req, res) {
+    proxy.web(req, res, {
+      target: 'http://localhost:8080'
+    });
+  });
+}
+else {
+  console.log('Build on production!');
+}
 
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET");
+  res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+  next();
+});
 
 webhookUri = "https://hooks.slack.com/services/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";
 

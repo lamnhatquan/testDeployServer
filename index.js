@@ -1,7 +1,61 @@
 var express = require('express');
 var Slack = require('./slack.seed');
-var app = express();
+//var app = express();
+var path = require('path');
 var mqtt = require('mqtt');
+var socketIO = require('socket.io');
+
+//app.set('port', (process.env.PORT || 5000));
+
+//app.use(express.static(path.join(__dirname, 'public')));
+
+
+// views is directory for all template files
+//app.set('views', path.join(__dirname, 'views'));
+//app.set('view engine', 'ejs');
+/*
+app.get('/', function(request, response) {
+  response.render('pages/index');
+});
+
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
+*/
+//const INDEX = path.join(__dirname, 'pages/index');
+
+
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, 'index.html');
+
+const server = express()
+.use(express.static(path.join(__dirname, 'public')))
+.set('views', path.join(__dirname, 'views'))
+.set('view engine', 'ejs')
+.use((req, res) => res.render('pages/index'))
+.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+
+const io = socketIO(server);
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.on('disconnect', () => console.log('Client disconnected'));
+  socket.on('register', function(message){
+    console.log(message);
+    
+    client.publish('/ESP8266/Register','GetID');
+  });
+});
+
+//setInterval(() => io.emit('complete', new Date().toTimeString()), 1000);
+
+
+
+webhookUri = "https://hooks.slack.com/services/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";
+
+slack = new Slack();
+slack.setWebhook(webhookUri);
+
 var client  = mqtt.connect({
   host: 'iot.eclipse.org',
   port: 1883,
@@ -10,7 +64,8 @@ var client  = mqtt.connect({
 });
 
 client.on('connect', function () {
-  client.subscribe('NodeJS_Server');
+  client.subscribe('/Server/Register');
+  client.subscribe('/Server/toSlack');
   client.publish('chrome_test', 'Hello mqtt');
   console.log("Someone connected!!!");
   slack.webhook({
@@ -22,36 +77,26 @@ client.on('connect', function () {
   });
 });
 
-app.set('port', (process.env.PORT || 5000));
-
-app.use(express.static(__dirname + '/public'));
-
-webhookUri = "https://hooks.slack.com/services/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";
-
-slack = new Slack();
-slack.setWebhook(webhookUri);
-
-// views is directory for all template files
-app.set('views', __dirname + '/views');
-
-app.get('/', function(request, response) {
-  response.render('pages/index.html');
-});
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
-
 client.on('message', function (topic, message) {
   // message is Buffer
-  console.log(message.toString());
-  slack.webhook({
-    channel: "#sensor",
-    username: "ESP8266",
-    text: message.toString(),
-  }, function(err, response) {
-    //console.log(response);
-  });
+  //console.log(message.toString());
+  switch (topic){
+    case '/Server/Register': 
+      console.log("Register with ID = "+message.toString());
+      io.emit('complete', message.toString());
+      break;
+    case '/Server/toSlack':
+      console.log("Send to Slack: "+message.toString());
+      slack.webhook({
+        channel: "#sensor",
+        username: "ESP8266",
+        text: message.toString(),
+      }, function(err, response) {
+        //console.log(response);
+      });
+      break;
+  }
+  
   //client.end();
 });
 
