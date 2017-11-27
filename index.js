@@ -58,7 +58,8 @@ io.on('connection', (socket) => {
   socket.on('register', function(message){
     newUser = message;
     console.log(newUser);
-    client.publish('/ESP8266/Register','GetID#'+(n_data+1).toString());
+    n_data++;
+    client.publish('/ESP8266/Register','GetID#'+n_data.toString());
   });
 });
 
@@ -104,7 +105,7 @@ client.on('message', function (topic, message) {
           name: newUser.name,
           slack_user: newUser.slack_user,
           position: newUser.position,
-          fingerid: (n_data+1).toString()
+          fingerid: n_data.toString()
         };
         console.log(obj.toString());
         db.collection("FingerID").insertOne(obj, function(err, res){
