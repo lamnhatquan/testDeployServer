@@ -111,8 +111,8 @@ io.on('connection', (socket) => {
 
 
 
-//webhookUri = "https://hooks.slack.com/services/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";
-webhookUri = "https://hooks.slack.com/services/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";
+webhookUri = "https://hooks.slack.com/services/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";
+//webhookUri = "https://hooks.slack.com/services/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";
 
 slack = new Slack();
 slack.setWebhook(webhookUri);
@@ -130,7 +130,7 @@ client.on('connect', function () {
   client.publish('chrome_test', 'Hello mqtt');
   console.log("Someone connected!!!");
   slack.webhook({
-    channel: "#sensor",
+    channel: "#gereral",
     username: "Server",
     text: "Server is ready !!!"
   }, function(err, response) {
@@ -153,7 +153,7 @@ var UpdateInfo = function(db,message){
     });
     console.log(t.toString());
     slack.webhook({
-      channel: "#sensor",
+      channel: "#general",
       username: "ESP8266",
       text: "```"+t.toString()+"```"
     }, function(err, response) {
