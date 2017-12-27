@@ -12,10 +12,8 @@ var formatdate = require('dateformat');
 var newUser;
 var n_data = 0;
 
-/*table([['Tên','Thời gian đến','Thời gian đi','Đi sớm (h)','Đi trễ (h)']]);
+process.env.TZ = 'Asia/Ho_Chi_Minh';
 
-table()
-*/
 mongo.connect(url, function(err, db) {
   if (err) throw err;
   db.collection("FingerID").count({}, function(err, result) {
@@ -200,8 +198,8 @@ client.on('message', function (topic, message) {
       console.log("Send to Slack: "+message.toString());
       mongo.connect(url, function(err, db) {
         if (err) throw err;
-        var date = new Date;
-        console.log(formatdate(date,"hh:MM:ss dd/mm/yyyy").toString());
+        var date = new Date().toLocaleString();
+        //console.log(formatdate(date,"hh:MM:ss dd/mm/yyyy").toString());
         var state = "";
         db.collection("FingerID").findOne({"fingerid": message.toString()}, function(err,result){
           if (err) throw err;
@@ -213,7 +211,7 @@ client.on('message', function (topic, message) {
             console.log("helo");
             db.collection("FingerID").update({"fingerid": message.toString()},
             {
-              $set: {"timeCome": formatdate(date,"hh:MM dd/mm/yyyy").toString(),
+              $set: {"timeCome": date,
               "timeLeave": "",
               "state": "1"}
             }, function(err,result){
@@ -223,7 +221,7 @@ client.on('message', function (topic, message) {
           } else if (state == "1") {
             db.collection("FingerID").update({"fingerid": message.toString()},
             {
-              $set: {"timeLeave": formatdate(date,"hh:MM dd/mm/yyyy").toString(),
+              $set: {"timeLeave": data,
               "state": "0"}
             }, function(err,result){
               if (err) throw err;
@@ -233,29 +231,6 @@ client.on('message', function (topic, message) {
           UpdateInfo(db,message);
           db.close();
         });
-        console.log("1");
-
-        // db.collection("FingerID").find({}).toArray(function(err, result) {
-        //   if (err) throw err;
-        //   var t = new table;
-        //   result.forEach(function(data){
-        //     t.cell('Tên', data.name);
-        //     t.cell('Thời gian đến', data.timeCome);
-        //     t.cell('Thời gian đi', data.timeLeave);
-        //     t.cell('Đi sớm (h)', data.timeSoon);
-        //     t.cell('Đi trễ (h)', data.timeLate);
-        //     t.newRow();
-        //   });
-        //   console.log(t.toString());
-        //   slack.webhook({
-        //     channel: "#general",
-        //     username: "ESP8266",
-        //     text: "```"+t.toString()+"```"
-        //   }, function(err, response) {
-            
-        //   });
-        //   db.close();
-        // });
       });
       break;
   }
