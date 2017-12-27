@@ -87,12 +87,16 @@ app.listen(app.get('port'), function() {
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, 'index.html');
 
-const server = express()
+var server = express()
 .use(express.static(path.join(__dirname, 'public')))
 .set('views', path.join(__dirname, 'views'))
 .set('view engine', 'ejs')
 .use((req, res) => res.render('pages/index'))
 .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+/*
+server.get('/alo', function (request, response) {
+  response.end("hello");
+});*/
 
 const io = socketIO(server);
 
